@@ -132,32 +132,32 @@ const pot4 = [
     }, 
     {
         country: 'Canada',
-        region: 'AFC',
+        region: 'CONCACAF',
         ranking: 38
     },
     {
         country: 'Ecuador',
-        region: 'AFC',
+        region: 'CONMEBOL',
         ranking: 46
     },
     {
         country: 'Saudi Arabia',
-        region: 'CAF',
+        region: 'AFC',
         ranking: 49
     },
     {
         country: 'Ghana',
-        region: 'UEFA',
+        region: 'CAF',
         ranking: 60
     },
     {
         country: 'Playoff1',
-        region: 'UEFA',
+        region: 'CONMEBOL',
         ranking: -1
     },
     {
         country: 'Playoff2',
-        region: 'AFC',
+        region: 'CONCACAF',
         ranking: -1
     },
     {
@@ -167,6 +167,93 @@ const pot4 = [
     }
 ]
 
-function drawTeams(){
+
+var groups = [  [null, null, null, null],
+                [null, null, null, null],
+                [null, null, null, null],
+                [null, null, null, null],
+                [null, null, null, null],
+                [null, null, null, null],
+                [null, null, null, null],
+                [null, null, null, null]  ]; // Groups A to H
+
+var chosenTeams = []; // To make sure a team doesn't get chosen twice
+
+
+function ChooseRandomTeam(pot){
+    // Pick a random team from given pot
+    var idx = Math.floor(Math.random() * (pot1.length - 1) + 1);
+    while(chosenTeams.indexOf(pot1[idx]) >= 0){
+        idx = Math.floor(Math.random() * (pot1.length - 1) + 1);
+    }
+    return pot[idx];
+}
+
+function DrawTeams(){
+    // Host team goes to group A1
+    groups[0][0] = pot1[0];
+    // Pot 1:
+    // For each group
+    for(i = 1; i < groups.length; i++){
+        var team = ChooseRandomTeam(pot1);
+        chosenTeams.push(team);
+        // Asign position 1 of group
+        groups[i][0] = team;
+    };
+    console.log(groups)
+    // Pots 2-4
+    // For each group
+    for(i = 1; i < groups.length; i++){
+        // Chose a random team from pot
+        let team = PickFromPot(groups[i], pot2);
+        // Assign place in group
+        console.log(groups);
+    }
     
+}
+
+var queue = [];
+
+function PickFromPot(group, pot){
+    // TODO: Check if any teams are enqueued
+
+    var team = ChooseRandomTeam(pot);
+    // While we don't find a team from pot than can play
+    while(!CheckRestrictions(group, team)){
+        // Try with another team
+        team = ChooseRandomTeam(pot);
+    }
+    return team;
+}
+
+function CheckRestrictions(group, team){
+    var canPlay = true;
+    // For each team in the group
+    group.forEach(team2 => {
+        // If the region is the same as the chosen team
+        if(team2.region == team.region){
+            // If it's not UEFA
+            if(team.region != 'UEFA'){
+                // Add to queue for next group
+                queue.push(team);
+                // This team cannot play in this group
+                canPlay = false;
+            } else {
+            // If it's UEFA
+                var UEFAcount = 0;
+                group.forEach(x =>{
+                    if(x.region == 'UEFA'){
+                        UEFAcount++;
+                    }
+                });
+                // If number of UEFA countries >= 2
+                if(UEFAcount >= 2){
+                    // Queue for next group
+                    queue.push(team);
+                    canPlay = false;
+                }
+            }
+        }
+    });
+    return canPlay;
 }
