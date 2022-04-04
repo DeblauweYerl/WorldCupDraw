@@ -2,7 +2,7 @@ const pot1 = [
     {
         country: 'Qatar',
         region: 'AFC',
-        ranking: 0 // 0 because it's the host
+        ranking: 51
     }, 
     {
         country: 'Brazil',
@@ -153,31 +153,44 @@ const pot4 = [
     {
         country: 'Playoff1',
         region: 'CONMEBOL',
-        ranking: -1
+        ranking: 50
     },
     {
         country: 'Playoff2',
         region: 'CONCACAF',
-        ranking: -1
+        ranking: 50
     },
     {
         country: 'EuroPlayoff',
         region: 'UEFA',
-        ranking: -1
+        ranking: 50
     }
 ]
 
+var groups;
+var chosenTeams;
+groups = [  [null, null, null, null],
+    [null, null, null, null],
+    [null, null, null, null],
+    [null, null, null, null],
+    [null, null, null, null],
+    [null, null, null, null],
+    [null, null, null, null],
+    [null, null, null, null]  ]; // Groups A to H
+chosenTeams = []; // To make sure a team doesn't get chosen twice
 
-var groups = [  [null, null, null, null],
-                [null, null, null, null],
-                [null, null, null, null],
-                [null, null, null, null],
-                [null, null, null, null],
-                [null, null, null, null],
-                [null, null, null, null],
-                [null, null, null, null]  ]; // Groups A to H
+function Start(){
+    groups = [  [null, null, null, null],
+    [null, null, null, null],
+    [null, null, null, null],
+    [null, null, null, null],
+    [null, null, null, null],
+    [null, null, null, null],
+    [null, null, null, null],
+    [null, null, null, null]  ]; // Groups A to H
+    chosenTeams = []; // To make sure a team doesn't get chosen twice
+}
 
-var chosenTeams = []; // To make sure a team doesn't get chosen twice
 
 
 function ChooseRandomTeam(pot){
@@ -198,6 +211,7 @@ function ChooseRandomTeam(pot){
 }
 
 function DrawTeams(){
+    Start();
     // Host team goes to group A1
     groups[0][0] = pot1[0];
     chosenTeams.push(pot1[0]);
@@ -301,4 +315,94 @@ function CheckRestrictions(group, team){
         }
     });
     return canPlay;
+}
+
+
+function GroupStage(group){
+    // Simulate the games for group X
+    // Add the points field for the classification
+    for(i=0; i<group.length; i++){
+        group[i].points = 0;
+    }
+    // 1st game: X1-X2 X3-X4
+    console.log("Jornada 1");
+    group[0], group[1] = Game(group[0], group[1]);
+    group[2], group[3] =Game(group[2], group[3]);
+    // 2nd game: X2-X4 X1-X3
+    console.log("Jornada 2");
+    group[1], group[3] = Game(group[1], group[3]);
+    group[0], group[2] = Game(group[0], group[2]);
+    // 3rd game: X1-X4 X2-X3
+    console.log("Jornada 3");
+    group[0], group[3] = Game(group[0], group[3]);
+    group[1], group[2] = Game(group[1], group[2]);
+    return group;
+}
+
+function Game(team1, team2){
+    /* To calculate the winner of a game,
+    it will get a random number in the [0, 1)
+    interval, which will later be multiplied by
+    the ranking position of the team. This way,
+    better teams will have more chance to win */
+
+    // Team 1 result
+    let t1 = Math.random() * team1.ranking;
+    // Team 2 result
+    let t2 = Math.random() * team2.ranking;
+    // The team with the smallest number wins
+    let winner;
+    if(t1 < t2){
+        team1.points += 3;
+        winner = team1;
+    } else if (t2 < t1){
+        team2.points += 3;
+        winner = team2;
+    } else {
+        team1.points += 1;
+        team2.points += 1;
+        winner = null;
+    }
+
+    if(winner != null){
+        console.log("El partido entre "+ team1.country + " y " + team2.country + " lo ha ganado " + winner.country);
+    } else {
+        console.log("El partido entre "+ team1.country + " y " + team2.country + " ha acabado en empate");
+    }
+    return team1, team2;
+}
+
+function PlayGroupStage(){
+    var i = 0
+    // For some reaso the for loop didn't work :(
+    while(i < groups.length){
+        
+        groups[i] = GroupStage(groups[i]);
+        i += 1;
+    }
+}
+
+function GroupStageResults(){
+    // Sort the groups by the points obtained in the group stage
+    var i = 0;
+    while(i < groups.length){
+        let sortedGroup = SortGroup(groups[i]);
+        groups[i] = sortedGroup;
+        i += 1;
+    }
+    console.log(groups);
+}
+
+function SortGroup(group){
+    var i = 1;
+    var auxGroup = group;
+    while(i < auxGroup.length){
+        if(auxGroup[i].points > auxGroup[i-1].points){
+            let aux = auxGroup[i];
+            auxGroup[i] = auxGroup[i-1];
+            auxGroup[i-1] = aux;
+        }
+        i += 1;
+    }
+    return auxGroup;
 }
