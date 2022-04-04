@@ -1,3 +1,5 @@
+let html_pot1, html_pot2, html_pot3, html_pot4;
+
 const pot1 = [
     {
         country: 'Qatar',
@@ -167,6 +169,29 @@ const pot4 = [
     }
 ]
 
+const LoadData = function() {
+    for (country of pot1) {
+        html_pot1.innerHTML += `<p class="bg-light p-1 mb-1 text-danger rounded">${country.ranking} - ${country.country}</p>`
+    };
+    for (country of pot2) {
+        html_pot2.innerHTML += `<p class="bg-light p-1 mb-1 text-danger rounded">${country.ranking} - ${country.country}</p>`
+    };
+    for (country of pot3) {
+        html_pot3.innerHTML += `<p class="bg-light p-1 mb-1 text-danger rounded">${country.ranking} - ${country.country}</p>`
+    };
+    for (country of pot4) {
+        if (country.ranking != -1) {
+            html_pot4.innerHTML += `<p class="bg-light p-1 mb-1 text-danger rounded">${country.ranking} - ${country.country}</p>`
+        }
+        else {
+            html_pot4.innerHTML += `<p class="bg-light p-1 mb-1 text-danger rounded">${country.country}</p>`
+        }
+    };
+};
+
+// function drawTeams(){
+    
+    
 var groups;
 var chosenTeams;
 groups = [  [null, null, null, null],
@@ -406,3 +431,13 @@ function SortGroup(group){
     }
     return auxGroup;
 }
+// };
+
+$(document).ready(function() {
+    html_pot1 = document.getElementById("js-pot1")
+    html_pot2 = document.getElementById("js-pot2")
+    html_pot3 = document.getElementById("js-pot3")
+    html_pot4 = document.getElementById("js-pot4")
+
+    LoadData();
+});
