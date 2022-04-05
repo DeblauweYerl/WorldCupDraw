@@ -1,4 +1,4 @@
-let html_pot1, html_pot2, html_pot3, html_pot4;
+let html_pot1, html_pot2, html_pot3, html_pot4, html_btn_draw, html_groups;
 
 const pot1 = [
     {
@@ -180,7 +180,7 @@ const LoadData = function() {
         html_pot3.innerHTML += `<p class="bg-light p-1 mb-1 text-danger rounded">${country.ranking} - ${country.country}</p>`
     };
     for (country of pot4) {
-        if (country.ranking != -1) {
+        if (country.ranking != 50) {
             html_pot4.innerHTML += `<p class="bg-light p-1 mb-1 text-danger rounded">${country.ranking} - ${country.country}</p>`
         }
         else {
@@ -188,13 +188,11 @@ const LoadData = function() {
         }
     };
 };
-
-// function drawTeams(){
     
     
 var groups;
 var chosenTeams;
-groups = [  [null, null, null, null],
+var groups = [  [null, null, null, null],
     [null, null, null, null],
     [null, null, null, null],
     [null, null, null, null],
@@ -205,7 +203,7 @@ groups = [  [null, null, null, null],
 chosenTeams = []; // To make sure a team doesn't get chosen twice
 
 function Start(){
-    groups = [  [null, null, null, null],
+    var groups = [  [null, null, null, null],
     [null, null, null, null],
     [null, null, null, null],
     [null, null, null, null],
@@ -250,33 +248,26 @@ function DrawTeams(){
     };
     // Pots 2-4
     // For each group
-    for(i = 0; i < groups.length; i++){        
+    for(i = 0; i < groups.length; i++){
         // Chose a random team from pot2
-        team = PickFromPot(groups[i], pot2);
+        var team = PickFromPot(groups[i], pot2);
         // Assign place in group
-        place = AssignPlace(groups[i]);
+        var place = AssignPlace(groups[i]);
         groups[i][place] = team;
-
+    }
+    for(i = 0; i < groups.length; i++){
+        
         team = PickFromPot(groups[i], pot3);
         place = AssignPlace(groups[i]);
         groups[i][place] = team;
+    }
 
+    for(i = 0; i < groups.length; i++){
+        
         team = PickFromPot(groups[i], pot4);
         place = AssignPlace(groups[i]);
         groups[i][place] = team;
     }
-    // for(i = 0; i < groups.length; i++){
-        
-    //     team = PickFromPot(groups[i], pot3);
-    //     place = AssignPlace(groups[i]);
-    //     groups[i][place] = team;
-    // }
-
-    // for(i = 0; i < groups.length; i++){
-    //     team = PickFromPot(groups[i], pot4);
-    //     place = AssignPlace(groups[i]);
-    //     groups[i][place] = team;
-    // }
     
 }
 
@@ -408,6 +399,7 @@ function PlayGroupStage(){
     var i = 0
     // For some reaso the for loop didn't work :(
     while(i < groups.length){
+        
         groups[i] = GroupStage(groups[i]);
         i += 1;
     }
@@ -416,16 +408,12 @@ function PlayGroupStage(){
 function GroupStageResults(){
     // Sort the groups by the points obtained in the group stage
     var i = 0;
-    var auxGroups = [];
     while(i < groups.length){
         let sortedGroup = SortGroup(groups[i]);
-        auxGroups[i] = sortedGroup;
-        console.log("Del grupo " + i + " pasan de fase los equipos " + auxGroups[i][0].country + " y " + auxGroups[i][1].country);
+        groups[i] = sortedGroup;
         i += 1;
     }
-    // console.log(groups);
-    groups = auxGroups;
-    return groups;
+    console.log(groups);
 }
 
 function SortGroup(group){
@@ -441,13 +429,40 @@ function SortGroup(group){
     }
     return auxGroup;
 }
-// };
+
+function SimulateDrawing(){
+    DrawTeams();
+    PlayGroupStage();
+    GroupStageResults();
+}
+
+function LoadGroups(){
+    for (groupNr in groups) {
+        for (country of groups[groupNr]) {
+            html_groups[groupNr].innerHTML += `<p class="bg-light p-1 mb-1 text-danger rounded">${country.ranking} - ${country.country}</p>`
+            console.log(country)
+            console.log(groups[groupNr])
+        }
+    }
+}
+
+const AddEventListeners = function() {
+    $("#js-btn-draw").click(function() {
+        SimulateDrawing();
+        LoadGroups();
+    });
+};
 
 $(document).ready(function() {
-    html_pot1 = document.getElementById("js-pot1")
-    html_pot2 = document.getElementById("js-pot2")
-    html_pot3 = document.getElementById("js-pot3")
-    html_pot4 = document.getElementById("js-pot4")
+    html_pot1 = document.getElementById("js-pot1");
+    html_pot2 = document.getElementById("js-pot2");
+    html_pot3 = document.getElementById("js-pot3");
+    html_pot4 = document.getElementById("js-pot4");
+    html_btn_draw = document.getElementById("js-btn-draw");
+    html_groups = document.getElementsByClassName("js-group");
+    console.log(html_groups);
+
+    AddEventListeners();
 
     LoadData();
 });
