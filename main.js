@@ -437,22 +437,77 @@ function SimulateDrawing(){
     PlayGroupStage();
     // Get the results from the group stage
     let winners = GroupStageResults();
+    console.log("winners");
     console.log(winners);
     // Place the teams for the next stage
+    let roundNr = 1;
+
     let roundOf16 = SetRoundOf16Teams(winners);
+    console.log("roundof16");
+    console.log(roundOf16);
+    LoadRound(roundOf16, roundNr);
+    roundNr++;
+
     console.log("OCTAVOS DE FINAL");
     let roundOf8 = PlayRound(roundOf16);
+    console.log("roundof8");
+    console.log(roundOf8);
+    LoadRound(roundOf8, roundNr);
+    roundNr++;
+
     console.log("CUARTOS DE FINAL");
     let roundOf4 = PlayRound(roundOf8);
-    console.log("roundof4")
+    console.log("roundof4");
     console.log(roundOf4);
+    LoadRound(roundOf4, roundNr);
+
     console.log("SEMIFINAL");
     let semifinal = PlayRound(roundOf4);
+    console.log("semifinal");
+    console.log(semifinal);
+    // LoadRound(semifinal, roundNr);
+
     console.log("FINAL");
     let final = PlayRound(semifinal);
+    console.log("final");
+    console.log(final);
+    // LoadRound(final, roundNr);
+
     console.log("Ganador: " + final[0].country);
 
     return final;
+}
+
+function LoadRound(teams, roundNr){
+    let html_teams = [];
+    if (roundNr == 1) {
+        html_round = document.getElementsByClassName("js-round1");
+    }
+    else if (roundNr == 2) {
+        html_round = document.getElementsByClassName("js-round2");
+    }
+    else if (roundNr == 3) {
+        html_round = document.getElementsByClassName("js-round3");
+    };
+    for (side of html_round) {
+        for (team of side.getElementsByClassName("js-game-pair")) {
+            html_teams.push(team);
+        };
+    };
+
+    for (i in teams) {
+        html_teams[i].innerHTML = teams[i].country;
+        if (i%2 != 0) {
+            if (teams[i].points > teams[i-1].points) {
+                html_teams[i].classList.add("bg-success");
+                html_teams[i].classList.remove("bg-danger");
+            }
+            else {
+                html_teams[i-1].classList.add("bg-success");
+                html_teams[i-1].classList.remove("bg-danger");
+            }
+        }
+    };
 }
 
 function PlayRound(teams){
@@ -484,10 +539,10 @@ function Game(team1, team2){
         }
     } while (winner == null);
     console.log("The game between "+ team1.country + " and " + team2.country + " was won by " + winner.country);
-    html_rounds.innerHTML += `<div id="js-groupA" class="js-group p-3 m-3 bg-danger rounded" style="min-width: 166px">
-    <p class="o-group-title text-light" style="font-weight: 700;">${team1.points} - ${team1.country}</p>
-    <p class="o-group-title text-light" style="font-weight: 700;">${team2.points} - ${team2.country}</p>
-</div>`
+//     html_rounds.innerHTML += `<div id="js-groupA" class="js-group p-3 m-3 bg-danger rounded" style="min-width: 166px">
+//     <p class="o-group-title text-light" style="font-weight: 700;">${team1.points} - ${team1.country}</p>
+//     <p class="o-group-title text-light" style="font-weight: 700;">${team2.points} - ${team2.country}</p>
+// </div>`
     return winner;
 }
 
