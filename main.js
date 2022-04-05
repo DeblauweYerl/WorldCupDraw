@@ -1,4 +1,4 @@
-let html_pot1, html_pot2, html_pot3, html_pot4, html_btn_draw, html_groups;
+let html_pot1, html_pot2, html_pot3, html_pot4, html_btn_draw, html_groups, html_winner, html_rounds;
 
 const pot1 = [
     {
@@ -437,17 +437,22 @@ function SimulateDrawing(){
     PlayGroupStage();
     // Get the results from the group stage
     let winners = GroupStageResults();
+    console.log(winners);
     // Place the teams for the next stage
     let roundOf16 = SetRoundOf16Teams(winners);
     console.log("OCTAVOS DE FINAL");
     let roundOf8 = PlayRound(roundOf16);
     console.log("CUARTOS DE FINAL");
     let roundOf4 = PlayRound(roundOf8);
+    console.log("roundof4")
+    console.log(roundOf4);
     console.log("SEMIFINAL");
     let semifinal = PlayRound(roundOf4);
     console.log("FINAL");
     let final = PlayRound(semifinal);
     console.log("Ganador: " + final[0].country);
+
+    return final;
 }
 
 function PlayRound(teams){
@@ -479,6 +484,10 @@ function Game(team1, team2){
         }
     } while (winner == null);
     console.log("The game between "+ team1.country + " and " + team2.country + " was won by " + winner.country);
+    html_rounds.innerHTML += `<div id="js-groupA" class="js-group p-3 m-3 bg-danger rounded" style="min-width: 166px">
+    <p class="o-group-title text-light" style="font-weight: 700;">${team1.points} - ${team1.country}</p>
+    <p class="o-group-title text-light" style="font-weight: 700;">${team2.points} - ${team2.country}</p>
+</div>`
     return winner;
 }
 
@@ -516,17 +525,20 @@ function SetRoundOf16Teams(winners){
 function LoadGroups(){
     for (groupNr in groups) {
         for (country of groups[groupNr]) {
-            html_groups[groupNr].innerHTML += `<p class="bg-light p-1 mb-1 text-danger rounded">${country.ranking} - ${country.country}</p>`
-            console.log(country)
-            console.log(groups[groupNr])
-        }
-    }
-}
+            html_groups[groupNr].innerHTML += `<p class="bg-light p-1 mb-1 text-danger rounded">${country.country}</p>`;
+        };
+    };
+};
+
+function LoadWinner(final){
+    html_winner.innerHTML = `<h2>Winner: ${final[0].country}</h2>`
+};
 
 const AddEventListeners = function() {
     $("#js-btn-draw").click(function() {
-        SimulateDrawing();
+        final = SimulateDrawing();
         LoadGroups();
+        LoadWinner(final);
     });
 };
 $(document).ready(function() {
@@ -536,7 +548,8 @@ $(document).ready(function() {
     html_pot4 = document.getElementById("js-pot4");
     html_btn_draw = document.getElementById("js-btn-draw");
     html_groups = document.getElementsByClassName("js-group");
-    console.log(html_groups);
+    html_rounds = document.getElementById("js-rounds");
+    html_winner = document.getElementById("js-winner");
 
     AddEventListeners();
 
