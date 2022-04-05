@@ -265,19 +265,6 @@ function DrawTeams(){
         place = AssignPlace(groups[i]);
         groups[i][place] = team;
     }
-    // for(i = 0; i < groups.length; i++){
-        
-    //     team = PickFromPot(groups[i], pot3);
-    //     place = AssignPlace(groups[i]);
-    //     groups[i][place] = team;
-    // }
-
-    // for(i = 0; i < groups.length; i++){
-    //     team = PickFromPot(groups[i], pot4);
-    //     place = AssignPlace(groups[i]);
-    //     groups[i][place] = team;
-    // }
-    
 }
 
 function AssignPlace(group){
@@ -357,21 +344,18 @@ function GroupStage(group){
         group[i].points = 0;
     }
     // 1st game: X1-X2 X3-X4
-    console.log("Jornada 1");
-    group[0], group[1] = Game(group[0], group[1]);
-    group[2], group[3] =Game(group[2], group[3]);
+    group[0], group[1] = GroupStageGame(group[0], group[1]);
+    group[2], group[3] = GroupStageGame(group[2], group[3]);
     // 2nd game: X2-X4 X1-X3
-    console.log("Jornada 2");
-    group[1], group[3] = Game(group[1], group[3]);
-    group[0], group[2] = Game(group[0], group[2]);
+    group[1], group[3] = GroupStageGame(group[1], group[3]);
+    group[0], group[2] = GroupStageGame(group[0], group[2]);
     // 3rd game: X1-X4 X2-X3
-    console.log("Jornada 3");
-    group[0], group[3] = Game(group[0], group[3]);
-    group[1], group[2] = Game(group[1], group[2]);
+    group[0], group[3] = GroupStageGame(group[0], group[3]);
+    group[1], group[2] = GroupStageGame(group[1], group[2]);
     return group;
 }
 
-function Game(team1, team2){
+function GroupStageGame(team1, team2){
     /* To calculate the winner of a game,
     it will get a random number in the [0, 1)
     interval, which will later be multiplied by
@@ -394,12 +378,6 @@ function Game(team1, team2){
         team1.points += 1;
         team2.points += 1;
         winner = null;
-    }
-
-    if(winner != null){
-        console.log("El partido entre "+ team1.country + " y " + team2.country + " lo ha ganado " + winner.country);
-    } else {
-        console.log("El partido entre "+ team1.country + " y " + team2.country + " ha acabado en empate");
     }
     return team1, team2;
 }
@@ -425,7 +403,17 @@ function GroupStageResults(){
     }
     // console.log(groups);
     groups = auxGroups;
-    return groups;
+
+    var groupStageWinners = [];
+    // Choose the winners for the next stage
+    i = 0;
+    // For each group
+    while(i < groups.length){
+        // Choose the teams that won the group stage
+        groupStageWinners.push([groups[i][0], groups[i][1]]);
+        i += 1;
+    }
+    return groupStageWinners;
 }
 
 function SortGroup(group){
@@ -441,7 +429,89 @@ function SortGroup(group){
     }
     return auxGroup;
 }
-// };
+
+function StartSimulation(){
+    // First it creates the groups from the draw pots
+    DrawTeams(); // The result of this goes to the global variable groups!!
+    // Then the teams play the groups stage
+    PlayGroupStage();
+    // Get the results from the group stage
+    let winners = GroupStageResults();
+    // Place the teams for the next stage
+    let roundOf16 = SetRoundOf16Teams(winners);
+    console.log("OCTAVOS DE FINAL");
+    let roundOf8 = PlayRound(roundOf16);
+    console.log("CUARTOS DE FINAL");
+    let roundOf4 = PlayRound(roundOf8);
+    console.log("SEMIFINAL");
+    let semifinal = PlayRound(roundOf4);
+    console.log("FINAL");
+    let final = PlayRound(semifinal);
+    console.log("Ganador: " + final[0].country);
+}
+
+function PlayRound(teams){
+    var nextRound = [];
+    var i = 0;
+    while (i < teams.length){
+        let winner = Game(teams[i], teams[i+1]);
+        nextRound.push(winner);
+        i += 2
+    }
+    return nextRound;
+}
+
+function Game(team1, team2){
+    /* This works the same as the
+    GroupStageGame function to calculate
+    the winner, but here no draws are
+    accepted */
+    let winner = null;
+    do {
+        // Team 1 result
+        let t1 = Math.random() * team1.ranking;
+        // Team 2 result
+        let t2 = Math.random() * team2.ranking;
+        if(t1 < t2){
+            winner = team1;
+        } else if (t2 < t1){
+            winner = team2;
+        }
+    } while (winner == null);
+    console.log("The game between "+ team1.country + " and " + team2.country + " was won by " + winner.country);
+    return winner;
+}
+
+function SetRoundOf16Teams(winners){
+    var roundOf16 = [];
+    // Push the teams in the correct order so team i plays against i+1
+    // A1 vs B2
+    roundOf16.push(winners[0][0]);
+    roundOf16.push(winners[1][1]);
+    // A2 vs B1
+    roundOf16.push(winners[0][1]);
+    roundOf16.push(winners[1][0]);
+    // C1 vs D2
+    roundOf16.push(winners[2][0]);
+    roundOf16.push(winners[3][1]);
+    // C2 vs D1
+    roundOf16.push(winners[2][1]);
+    roundOf16.push(winners[3][0]);
+    // E1 vs F2
+    roundOf16.push(winners[4][0]);
+    roundOf16.push(winners[5][1]);
+    // E2 vs F1
+    roundOf16.push(winners[4][1]);
+    roundOf16.push(winners[5][0]);
+    // G1 vs H2
+    roundOf16.push(winners[6][0]);
+    roundOf16.push(winners[7][1]);
+    // G2 vs H1
+    roundOf16.push(winners[6][1]);
+    roundOf16.push(winners[7][0]);
+
+    return roundOf16;
+}
 
 $(document).ready(function() {
     html_pot1 = document.getElementById("js-pot1")
