@@ -252,24 +252,31 @@ function DrawTeams(){
     // For each group
     for(i = 0; i < groups.length; i++){        
         // Chose a random team from pot2
-        var team = PickFromPot(groups[i], pot2);
+        team = PickFromPot(groups[i], pot2);
         // Assign place in group
-        var place = AssignPlace(groups[i]);
+        place = AssignPlace(groups[i]);
         groups[i][place] = team;
-    }
-    for(i = 0; i < groups.length; i++){
-        
+
         team = PickFromPot(groups[i], pot3);
         place = AssignPlace(groups[i]);
         groups[i][place] = team;
-    }
 
-    for(i = 0; i < groups.length; i++){
-        
         team = PickFromPot(groups[i], pot4);
         place = AssignPlace(groups[i]);
         groups[i][place] = team;
     }
+    // for(i = 0; i < groups.length; i++){
+        
+    //     team = PickFromPot(groups[i], pot3);
+    //     place = AssignPlace(groups[i]);
+    //     groups[i][place] = team;
+    // }
+
+    // for(i = 0; i < groups.length; i++){
+    //     team = PickFromPot(groups[i], pot4);
+    //     place = AssignPlace(groups[i]);
+    //     groups[i][place] = team;
+    // }
     
 }
 
@@ -401,7 +408,6 @@ function PlayGroupStage(){
     var i = 0
     // For some reaso the for loop didn't work :(
     while(i < groups.length){
-        
         groups[i] = GroupStage(groups[i]);
         i += 1;
     }
@@ -410,12 +416,16 @@ function PlayGroupStage(){
 function GroupStageResults(){
     // Sort the groups by the points obtained in the group stage
     var i = 0;
+    var auxGroups = [];
     while(i < groups.length){
         let sortedGroup = SortGroup(groups[i]);
-        groups[i] = sortedGroup;
+        auxGroups[i] = sortedGroup;
+        console.log("Del grupo " + i + " pasan de fase los equipos " + auxGroups[i][0].country + " y " + auxGroups[i][1].country);
         i += 1;
     }
-    console.log(groups);
+    // console.log(groups);
+    groups = auxGroups;
+    return groups;
 }
 
 function SortGroup(group){
