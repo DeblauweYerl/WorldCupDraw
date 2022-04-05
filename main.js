@@ -404,8 +404,6 @@ function GroupStageResults(){
         i += 1;
     }
     // console.log(groups);
-    groups = auxGroups;
-
     var groupStageWinners = [];
     // Choose the winners for the next stage
     i = 0;
