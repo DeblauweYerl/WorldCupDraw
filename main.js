@@ -432,7 +432,7 @@ function SortGroup(group){
     return auxGroup;
 }
 
-function StartSimulation(){
+function SimulateDrawing(){
     // First it creates the groups from the draw pots
     DrawTeams(); // The result of this goes to the global variable groups!!
     // Then the teams play the groups stage
