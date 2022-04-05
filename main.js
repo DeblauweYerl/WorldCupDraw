@@ -233,9 +233,10 @@ function ChooseRandomTeam(pot){
     return pot[idx];
 }
 
+
 function DrawTeams(){
     Start();
-    // Host team goes to group A1
+    // Host goes to first place of first group
     groups[0][0] = pot1[0];
     chosenTeams.push(pot1[0]);
     // Pot 1:
@@ -246,27 +247,41 @@ function DrawTeams(){
         // Asign position 1 of group
         groups[i][0] = team;
     };
-    // Pots 2-4
-    // For each group
-    for(i = 0; i < groups.length; i++){
-        // Chose a random team from pot2
-        var team = PickFromPot(groups[i], pot2);
-        // Assign place in group
-        var place = AssignPlace(groups[i]);
-        groups[i][place] = team;
-    }
-    for(i = 0; i < groups.length; i++){
-        
-        team = PickFromPot(groups[i], pot3);
-        place = AssignPlace(groups[i]);
-        groups[i][place] = team;
-    }
+    // For the rest of pots
+    // console.log("POT 2");
+    DrawPot(pot2);
+    // console.log("POT 3");
+    DrawPot(pot3);
+    // console.log("POT 4");
+    DrawPot(pot4);
+}
 
-    for(i = 0; i < groups.length; i++){
-        
-        team = PickFromPot(groups[i], pot4);
-        place = AssignPlace(groups[i]);
-        groups[i][place] = team;
+function DrawPot(pot){
+    var auxPot = [...pot];
+    var groupsChosen = [];
+    while (auxPot.length > 0){
+        // Pick a random team
+        var team = ChooseRandomTeam(auxPot);
+        // Check if it can fit in group 0, 1, 2...
+        var i = 0;
+        var teamPlaced = false;
+        while(!teamPlaced && i < groups.length){
+            // Check if this group has already been used
+            if(!groupsChosen.includes(i)){
+                // Leave it in the first group that fits
+                if(CheckRestrictions(groups[i], team)){
+                    let place = AssignPlace(groups[i]);
+                    // console.log("Team " + team.country + " goes in group " + i + " in position " + place);
+                    groups[i][place] = team;
+                    teamPlaced = true;
+                    groupsChosen.push(i);
+                }
+            }
+            // Keep selecting teams until the pot is empty
+            i += 1;
+        }
+        // Remove team from pot so it's not chosen again.
+        auxPot.splice(auxPot.indexOf(team), 1);
     }
 }
 
@@ -280,62 +295,42 @@ function AssignPlace(group){
     return place;
 }
 
-var queue = [];
-
-function PickFromPot(group, pot){
-    var team;
-    // Check if any teams are enqueued
-    if( queue.length > 0){
-        // Pop method takes last element of array, so we reverse to get the first one
-        queue.reverse();
-        team = queue.pop();
-        // Reverse it again to put it back to normal
-        queue.reverse();
-    } else {
-        team = ChooseRandomTeam(pot);
-    }
-    // While we don't find a team from pot than can play
-    while(!CheckRestrictions(group, team)){
-        // Try with another team
-        team = ChooseRandomTeam(pot);
-    }
-    chosenTeams.push(team);
-    return team;
-}
 
 function CheckRestrictions(group, team){
     var canPlay = true;
-    // For each team in the group
-    group.forEach(team2 => {
-        // If the region is the same as the chosen team
-        if(team2 != null){
-            if(team2.region == team.region){
-                // If it's not UEFA
-                if(team.region != 'UEFA'){
-                    // Add to queue for next group
-                    queue.push(team);
-                    // This team cannot play in this group
-                    canPlay = false;
-                } else {
-                // If it's UEFA
-                    var UEFAcount = 0;
-                    group.forEach(x =>{
-                        if(x != null){
-                            if(x.region == 'UEFA'){
-                                UEFAcount++;
-                            }
-                        }
-                    });
-                    // If number of UEFA countries >= 2
-                    if(UEFAcount >= 2){
-                        // Queue for next group
-                        queue.push(team);
+    // If the team has already been selected once, it cannot be selected again
+    if(chosenTeams.indexOf(team) >= 0){
+        canPlay = false;
+    }
+    else {
+        // For each team in the group
+        group.forEach(team2 => {
+            // If the region is the same as the chosen team
+            if(team2 != null){
+                if(team2.region == team.region){
+                    // If it's not UEFA
+                    if(team.region != 'UEFA'){
+                        // This team cannot play in this group
                         canPlay = false;
+                    } else {
+                    // If it's UEFA
+                        var UEFAcount = 0;
+                        group.forEach(x =>{
+                            if(x != null){
+                                if(x.region == 'UEFA'){
+                                    UEFAcount++;
+                                }
+                            }
+                        });
+                        // If number of UEFA countries >= 2
+                        if(UEFAcount >= 2){
+                            canPlay = false;
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    }
     return canPlay;
 }
 
@@ -431,6 +426,7 @@ function SortGroup(group){
 }
 
 function SimulateDrawing(){
+    Start();
     // First it creates the groups from the draw pots
     DrawTeams(); // The result of this goes to the global variable groups!!
     // Then the teams play the groups stage
@@ -440,17 +436,17 @@ function SimulateDrawing(){
     console.log(winners);
     // Place the teams for the next stage
     let roundOf16 = SetRoundOf16Teams(winners);
-    console.log("OCTAVOS DE FINAL");
+    // console.log("OCTAVOS DE FINAL");
     let roundOf8 = PlayRound(roundOf16);
-    console.log("CUARTOS DE FINAL");
+    // console.log("CUARTOS DE FINAL");
     let roundOf4 = PlayRound(roundOf8);
-    console.log("roundof4")
+    // console.log("roundof4")
     console.log(roundOf4);
-    console.log("SEMIFINAL");
+    // console.log("SEMIFINAL");
     let semifinal = PlayRound(roundOf4);
-    console.log("FINAL");
+    // console.log("FINAL");
     let final = PlayRound(semifinal);
-    console.log("Ganador: " + final[0].country);
+    // console.log("Ganador: " + final[0].country);
 
     return final;
 }
@@ -483,7 +479,7 @@ function Game(team1, team2){
             winner = team2;
         }
     } while (winner == null);
-    console.log("The game between "+ team1.country + " and " + team2.country + " was won by " + winner.country);
+    // console.log("The game between "+ team1.country + " and " + team2.country + " was won by " + winner.country);
     html_rounds.innerHTML += `<div id="js-groupA" class="js-group p-3 m-3 bg-danger rounded" style="min-width: 166px">
     <p class="o-group-title text-light" style="font-weight: 700;">${team1.points} - ${team1.country}</p>
     <p class="o-group-title text-light" style="font-weight: 700;">${team2.points} - ${team2.country}</p>
@@ -555,3 +551,69 @@ $(document).ready(function() {
 
     LoadData();
 });
+
+/*
+These functions didn't work as expected 
+
+function DrawTeamsButItDoesNotWork(){
+    Start();
+    // Host team goes to group A1
+    groups[0][0] = pot1[0];
+    chosenTeams.push(pot1[0]);
+    // Pot 1:
+    // For each group
+    for(i = 1; i < groups.length; i++){
+        var team = ChooseRandomTeam(pot1);
+        chosenTeams.push(team);
+        // Asign position 1 of group
+        groups[i][0] = team;
+    };
+    // Pots 2-4
+    // For each group
+    for(i = 0; i < groups.length; i++){
+        // Chose a random team from pot2
+        var team = PickFromPot(groups[i], pot2);
+        // Assign place in group
+        var place = AssignPlace(groups[i]);
+        groups[i][place] = team;
+    }
+    for(i = 0; i < groups.length; i++){
+        
+        team = PickFromPot(groups[i], pot3);
+        place = AssignPlace(groups[i]);
+        groups[i][place] = team;
+    }
+
+    for(i = 0; i < groups.length; i++){
+        
+        team = PickFromPot(groups[i], pot4);
+        place = AssignPlace(groups[i]);
+        groups[i][place] = team;
+    }
+}
+
+
+var queue = [];
+
+function PickFromPot(group, pot){
+    var team;
+    // Check if any teams are enqueued
+    if( queue.length > 0){
+        // Pop method takes last element of array, so we reverse to get the first one
+        queue.reverse();
+        team = queue.pop();
+        // Reverse it again to put it back to normal
+        queue.reverse();
+    } else {
+        team = ChooseRandomTeam(pot);
+    }
+    // While we don't find a team from pot than can play
+    while(!CheckRestrictions(group, team)){
+        // Try with another team
+        queue.push(team);
+        team = ChooseRandomTeam(pot);
+    }
+    chosenTeams.push(team);
+    return team;
+}
+*/
