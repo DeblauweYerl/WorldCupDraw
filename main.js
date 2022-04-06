@@ -4,168 +4,200 @@ const pot1 = [
     {
         country: 'Qatar',
         region: 'AFC',
-        ranking: 51
+        ranking: 51,
+        points: 0
     }, 
     {
         country: 'Brazil',
         region: 'CONMEBOL',
-        ranking: 1
+        ranking: 1,
+        points: 0
     },
     {
         country: 'Belgium',
         region: 'UEFA',
-        ranking: 2
+        ranking: 2,
+        points: 0
     },
     {
         country: 'France',
         region: 'UEFA',
-        ranking: 3
+        ranking: 3,
+        points: 0
     },
     {
         country: 'Argentina',
         region: 'CONMEBOL',
-        ranking: 4
+        ranking: 4,
+        points: 0
     },
     {
         country: 'England',
         region: 'UEFA',
-        ranking: 5
+        ranking: 5,
+        points: 0
     },
     {
         country: 'Spain',
         region: 'UEFA',
-        ranking: 7
+        ranking: 7,
+        points: 0
     },
     {
         country: 'Portugal',
         region: 'UEFA',
-        ranking: 8
+        ranking: 8,
+        points: 0
     }
 ]
 const pot2 = [
     {
         country: 'Mexico',
         region: 'CONCACAF',
-        ranking: 9
+        ranking: 9,
+        points: 0
     }, 
     {
         country: 'Netherlands',
         region: 'UEFA',
-        ranking: 10
+        ranking: 10,
+        points: 0
     },
     {
         country: 'Denmark',
         region: 'UEFA',
-        ranking: 11
+        ranking: 11,
+        points: 0
     },
     {
         country: 'Germany',
         region: 'UEFA',
-        ranking: 12
+        ranking: 12,
+        points: 0
     },
     {
         country: 'Uruguay',
         region: 'CONMEBOL',
-        ranking: 13
+        ranking: 13,
+        points: 0
     },
     {
         country: 'Switzerland',
         region: 'UEFA',
-        ranking: 14
+        ranking: 14,
+        points: 0
     },
     {
         country: 'USA',
         region: 'CONCACAF',
-        ranking: 15
+        ranking: 15,
+        points: 0
     },
     {
         country: 'Croatia',
         region: 'UEFA',
-        ranking: 16
+        ranking: 16,
+        points: 0
     }
 ]
 const pot3 = [
     {
         country: 'Senegal',
         region: 'CAF',
-        ranking: 20
+        ranking: 20,
+        points: 0
     }, 
     {
         country: 'Iran',
         region: 'AFC',
-        ranking: 21
+        ranking: 21,
+        points: 0
     },
     {
         country: 'Japan',
         region: 'AFC',
-        ranking: 23
+        ranking: 23,
+        points: 0
     },
     {
         country: 'Morocco',
         region: 'CAF',
-        ranking: 24
+        ranking: 24,
+        points: 0
     },
     {
         country: 'Serbia',
         region: 'UEFA',
-        ranking: 25
+        ranking: 25,
+        points: 0
     },
     {
         country: 'Poland',
         region: 'UEFA',
-        ranking: 26
+        ranking: 26,
+        points: 0
     },
     {
         country: 'South Korea',
         region: 'AFC',
-        ranking: 29
+        ranking: 29,
+        points: 0
     },
     {
         country: 'Tunisia',
         region: 'CAF',
-        ranking: 35
+        ranking: 35,
+        points: 0
     }
 ]
 const pot4 = [
     {
         country: 'Cameroon ',
         region: 'CAF',
-        ranking: 37
+        ranking: 37,
+        points: 0
     }, 
     {
         country: 'Canada',
         region: 'CONCACAF',
-        ranking: 38
+        ranking: 38,
+        points: 0
     },
     {
         country: 'Ecuador',
         region: 'CONMEBOL',
-        ranking: 46
+        ranking: 46,
+        points: 0
     },
     {
         country: 'Saudi Arabia',
         region: 'AFC',
-        ranking: 49
+        ranking: 49,
+        points: 0
     },
     {
         country: 'Ghana',
         region: 'CAF',
-        ranking: 60
+        ranking: 60,
+        points: 0
     },
     {
         country: 'Playoff1',
         region: 'CONMEBOL',
-        ranking: 50
+        ranking: 50,
+        points: 0
     },
     {
         country: 'Playoff2',
         region: 'CONCACAF',
-        ranking: 50
+        ranking: 50,
+        points: 0
     },
     {
         country: 'EuroPlayoff',
         region: 'UEFA',
-        ranking: 50
+        ranking: 50,
+        points: 0
     }
 ]
 
@@ -201,9 +233,9 @@ var groups = [  [null, null, null, null],
     [null, null, null, null],
     [null, null, null, null]  ]; // Groups A to H
 chosenTeams = []; // To make sure a team doesn't get chosen twice
-
+var pendingTeams = [];
 function Start(){
-    var groups = [  [null, null, null, null],
+    groups = [  [null, null, null, null],
     [null, null, null, null],
     [null, null, null, null],
     [null, null, null, null],
@@ -212,6 +244,7 @@ function Start(){
     [null, null, null, null],
     [null, null, null, null]  ]; // Groups A to H
     chosenTeams = []; // To make sure a team doesn't get chosen twice
+    pendingTeams = [];
 }
 
 
@@ -254,7 +287,20 @@ function DrawTeams(){
     DrawPot(pot3);
     // console.log("POT 4");
     DrawPot(pot4);
+    // Place pending teams in a group
+    for (t of pendingTeams){
+        // Iterate each group
+        for (g of groups){
+            // Si if there's an empty place
+            for(place in g){
+                if (g[place] == null){
+                    g[place] = t;
+                }
+            }
+        }
+    }
 }
+
 
 function DrawPot(pot){
     var auxPot = [...pot];
@@ -274,11 +320,17 @@ function DrawPot(pot){
                     // console.log("Team " + team.country + " goes in group " + i + " in position " + place);
                     groups[i][place] = team;
                     teamPlaced = true;
+                    chosenTeams.push(team);
                     groupsChosen.push(i);
                 }
             }
             // Keep selecting teams until the pot is empty
             i += 1;
+        }
+        // If, for whatever reasong, the team didn't fit in any group
+        if (i >= groups.length && !teamPlaced){
+            // Add to pending teams to place it in a group later
+            pendingTeams.push(team);
         }
         // Remove team from pot so it's not chosen again.
         auxPot.splice(auxPot.indexOf(team), 1);
@@ -466,7 +518,7 @@ function SimulateDrawing(){
     // console.log("FINAL");
     let final = PlayRound(semifinal);
     // console.log("final");
-    console.log(final);
+    // console.log(final);
     // LoadRound(final, roundNr);
 
     // console.log("Ganador: " + final[0].country);
@@ -534,7 +586,7 @@ function Game(team1, team2){
             winner = team2;
         }
     } while (winner == null);
-    console.log("The game between "+ team1.country + " and " + team2.country + " was won by " + winner.country);
+    // console.log("The game between "+ team1.country + " and " + team2.country + " was won by " + winner.country);
 //     html_rounds.innerHTML += `<div id="js-groupA" class="js-group p-3 m-3 bg-danger rounded" style="min-width: 166px">
 //     <p class="o-group-title text-light" style="font-weight: 700;">${team1.points} - ${team1.country}</p>
 //     <p class="o-group-title text-light" style="font-weight: 700;">${team2.points} - ${team2.country}</p>
